@@ -1,7 +1,21 @@
+
 "use client";
 
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
+
+type FormState = {
+  message?: string;
+  errors?: {
+    umum?: string;
+    nama?: string;
+    kelas?: string;
+  };
+  input?: {
+    nama: string;
+    kelas: string;
+  };
+} | null;
 
 function TombolKirim() {
   const { pending } = useFormStatus();
@@ -28,17 +42,18 @@ export default function FormPendaftaranClient({
   defaultKelas,
 }: {
   ekskulId: number;
-  action: (formData: FormData) => Promise<any>;
+  action: (formData: FormData) => Promise<FormState>;
   defaultNama: string;
   defaultKelas: string;
 }) {
-  const [state, setState] = useState<any>(null);
+  const [state, setState] = useState<FormState>(null);
   const [nama, setNama] = useState(defaultNama);
   const [kelas, setKelas] = useState(defaultKelas);
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (formData: FormData): Promise<void> => {
     const result = await action(formData);
     setState(result);
+
     if (result?.input) {
       setNama(result.input.nama);
       setKelas(result.input.kelas);
@@ -68,6 +83,7 @@ export default function FormPendaftaranClient({
         <label className="block text-xs font-bold text-pink-700 uppercase tracking-wider mb-2">
           Nama Lengkap 🌸
         </label>
+
         <input
           type="text"
           name="nama"
@@ -76,6 +92,7 @@ export default function FormPendaftaranClient({
           placeholder="Contoh: Budi Santoso"
           className="w-full bg-white border border-pink-200/80 rounded-2xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent shadow-sm transition-all"
         />
+
         {state?.errors?.nama && (
           <p className="text-rose-500 text-xs mt-1.5 font-medium ml-1">
             {state.errors.nama}
@@ -87,6 +104,7 @@ export default function FormPendaftaranClient({
         <label className="block text-xs font-bold text-pink-700 uppercase tracking-wider mb-2">
           Kelas ✨
         </label>
+
         <input
           type="text"
           name="kelas"
@@ -95,6 +113,7 @@ export default function FormPendaftaranClient({
           placeholder="Contoh: XI RPL 1"
           className="w-full bg-white border border-pink-200/80 rounded-2xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent shadow-sm transition-all"
         />
+
         {state?.errors?.kelas && (
           <p className="text-rose-500 text-xs mt-1.5 font-medium ml-1">
             {state.errors.kelas}

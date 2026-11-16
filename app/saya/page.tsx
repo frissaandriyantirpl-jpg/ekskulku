@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 import { ekskul, pendaftar, JAM_SESI } from "@/data/ekskul";
 import TombolBatalkan from "./tombol-batalkan";
 
+export const instant = false;
+
 export default async function HalamanEkskulSaya({
   searchParams,
 }: {
