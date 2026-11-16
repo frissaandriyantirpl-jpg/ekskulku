@@ -10,10 +10,10 @@ function TombolKirim() {
     <button
       type="submit"
       disabled={pending}
-      className={`w-full py-3 rounded-xl font-bold text-white transition-all shadow-md ${
+      className={`w-full py-3.5 rounded-2xl font-bold text-white transition-all shadow-lg shadow-pink-200 ${
         pending
           ? "bg-pink-300 cursor-not-allowed"
-          : "bg-pink-500 hover:bg-pink-600 hover:shadow-pink-200 cursor-pointer"
+          : "bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0"
       }`}
     >
       {pending ? "Memproses..." : "Daftar Sekarang 💖"}
@@ -21,7 +21,7 @@ function TombolKirim() {
   );
 }
 
-export default function FormPendaftaran({
+export default function FormPendaftaranClient({
   ekskulId,
   action,
   defaultNama,
@@ -46,24 +46,27 @@ export default function FormPendaftaran({
   };
 
   return (
-    <form action={handleSubmit} className="space-y-4">
+    <form
+      action={handleSubmit}
+      className="space-y-5 bg-pink-50/40 p-6 rounded-3xl border border-pink-100/80 shadow-sm"
+    >
       <input type="hidden" name="ekskulId" value={ekskulId} />
 
       {state?.message && (
-        <div className="p-3 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-xl text-sm font-medium">
+        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-sm font-medium shadow-sm">
           ✅ {state.message}
         </div>
       )}
 
       {state?.errors?.umum && (
-        <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-xl text-sm font-medium">
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-sm font-medium shadow-sm">
           ❌ {state.errors.umum}
         </div>
       )}
 
       <div>
-        <label className="block text-xs font-bold text-pink-700 uppercase mb-1">
-          Nama Lengkap
+        <label className="block text-xs font-bold text-pink-700 uppercase tracking-wider mb-2">
+          Nama Lengkap 🌸
         </label>
         <input
           type="text"
@@ -71,18 +74,18 @@ export default function FormPendaftaran({
           value={nama}
           onChange={(e) => setNama(e.target.value)}
           placeholder="Contoh: Budi Santoso"
-          className="w-full bg-pink-50/50 border border-pink-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-400"
+          className="w-full bg-white border border-pink-200/80 rounded-2xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent shadow-sm transition-all"
         />
         {state?.errors?.nama && (
-          <p className="text-red-500 text-xs mt-1 font-medium">
+          <p className="text-rose-500 text-xs mt-1.5 font-medium ml-1">
             {state.errors.nama}
           </p>
         )}
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-pink-700 uppercase mb-1">
-          Kelas
+        <label className="block text-xs font-bold text-pink-700 uppercase tracking-wider mb-2">
+          Kelas ✨
         </label>
         <input
           type="text"
@@ -90,10 +93,10 @@ export default function FormPendaftaran({
           value={kelas}
           onChange={(e) => setKelas(e.target.value)}
           placeholder="Contoh: XI RPL 1"
-          className="w-full bg-pink-50/50 border border-pink-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-400"
+          className="w-full bg-white border border-pink-200/80 rounded-2xl px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent shadow-sm transition-all"
         />
         {state?.errors?.kelas && (
-          <p className="text-red-500 text-xs mt-1 font-medium">
+          <p className="text-rose-500 text-xs mt-1.5 font-medium ml-1">
             {state.errors.kelas}
           </p>
         )}
