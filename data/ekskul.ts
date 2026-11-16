@@ -1,3 +1,4 @@
+
 export type Kategori = "Olahraga" | "Seni" | "Akademik" | "Teknologi";
 
 export type Ekskul = {
@@ -5,7 +6,7 @@ export type Ekskul = {
   nama: string;
   kategori: Kategori;
   hari: string;
-  sesi: number; // 1 atau 2
+  sesi: number;
   kuota: number;
   pembina: string;
 };
@@ -17,8 +18,20 @@ export type Pendaftar = {
   kelas: string;
 };
 
-export const DAFTAR_KATEGORI: Kategori[] = ["Olahraga", "Seni", "Akademik", "Teknologi"];
-export const DAFTAR_HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+export const DAFTAR_KATEGORI: Kategori[] = [
+  "Olahraga",
+  "Seni",
+  "Akademik",
+  "Teknologi",
+];
+
+export const DAFTAR_HARI = [
+  "Senin",
+  "Selasa",
+  "Rabu",
+  "Kamis",
+  "Jumat",
+];
 
 export const JAM_SESI: Record<number, string> = {
   1: "15.00-16.30",
@@ -26,12 +39,60 @@ export const JAM_SESI: Record<number, string> = {
 };
 
 export const ekskul: Ekskul[] = [
-  { id: 1, nama: "Basket", kategori: "Olahraga", hari: "Senin", sesi: 1, kuota: 3, pembina: "Pak Andi" },
-  { id: 2, nama: "Futsal", kategori: "Olahraga", hari: "Rabu", sesi: 1, kuota: 20, pembina: "Pak Reza" },
-  { id: 3, nama: "Paduan Suara", kategori: "Seni", hari: "Senin", sesi: 1, kuota: 15, pembina: "Bu Wulan" },
-  { id: 4, nama: "Robotik", kategori: "Teknologi", hari: "Selasa", sesi: 2, kuota: 12, pembina: "Pak Dodi" },
-  { id: 5, nama: "English Club", kategori: "Akademik", hari: "Kamis", sesi: 1, kuota: 20, pembina: "Bu Rina" },
-  { id: 6, nama: "Desain Grafis", kategori: "Teknologi", hari: "Jumat", sesi: 1, kuota: 10, pembina: "Bu Sari" },
+  {
+    id: 1,
+    nama: "Basket",
+    kategori: "Olahraga",
+    hari: "Senin",
+    sesi: 1,
+    kuota: 3,
+    pembina: "Pak Andi",
+  },
+  {
+    id: 2,
+    nama: "Futsal",
+    kategori: "Olahraga",
+    hari: "Rabu",
+    sesi: 1,
+    kuota: 20,
+    pembina: "Pak Reza",
+  },
+  {
+    id: 3,
+    nama: "Paduan Suara",
+    kategori: "Seni",
+    hari: "Senin",
+    sesi: 1,
+    kuota: 15,
+    pembina: "Bu Wulan",
+  },
+  {
+    id: 4,
+    nama: "Robotik",
+    kategori: "Teknologi",
+    hari: "Selasa",
+    sesi: 2,
+    kuota: 12,
+    pembina: "Pak Dodi",
+  },
+  {
+    id: 5,
+    nama: "English Club",
+    kategori: "Akademik",
+    hari: "Kamis",
+    sesi: 1,
+    kuota: 20,
+    pembina: "Bu Rina",
+  },
+  {
+    id: 6,
+    nama: "Desain Grafis",
+    kategori: "Teknologi",
+    hari: "Jumat",
+    sesi: 1,
+    kuota: 10,
+    pembina: "Bu Sari",
+  },
 ];
 
 export const pendaftar: Pendaftar[] = [
@@ -41,10 +102,30 @@ export const pendaftar: Pendaftar[] = [
   { nomor: 4, ekskulId: 6, nama: "Sari", kelas: "X DKV 1" },
 ];
 
-let nomorTerakhir = pendaftar.length;
-
 export function tambahPendaftar(data: Omit<Pendaftar, "nomor">) {
-  nomorTerakhir += 1;
-  pendaftar.push({ nomor: nomorTerakhir, ...data });
-  return nomorTerakhir;
+  const nomorTerakhir =
+    pendaftar.length > 0
+      ? Math.max(...pendaftar.map((p) => p.nomor))
+      : 0;
+
+  const nomorBaru = nomorTerakhir + 1;
+
+  pendaftar.push({
+    nomor: nomorBaru,
+    ...data,
+  });
+
+  return nomorBaru;
+}
+
+export function hapusPendaftar(nomor: number): Pendaftar | null {
+  const index = pendaftar.findIndex((p) => p.nomor === nomor);
+
+  if (index === -1) {
+    return null;
+  }
+
+  const [dataTerhapus] = pendaftar.splice(index, 1);
+
+  return dataTerhapus;
 }
