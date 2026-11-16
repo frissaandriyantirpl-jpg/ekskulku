@@ -1,185 +1,116 @@
-import Link from "next/link";
-import { ambilSemuaEkskul } from "@/data/ambil";
-import {
-  pendaftar,
-  DAFTAR_KATEGORI,
-  DAFTAR_HARI,
-  JAM_SESI,
-} from "@/data/ekskul";
+'use client';
 
-export const metadata = {
-  title: "Daftar Ekskul",
-};
+import { useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 
-export default async function PageDaftarEkskul({
-  searchParams,
-}: {
-  searchParams: Promise<{ kategori?: string; hari?: string }>;
-}) {
-  const params = await searchParams;
-  const selectedKategori = params.kategori || "";
-  const selectedHari = params.hari || "";
+export default function HalamanEkskul() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const semuaEkskul = await ambilSemuaEkskul();
+  // 1. Ambil nilai filter yang ada di URL saat ini
+  const kategoriQuery = searchParams.get('kategori') || 'Semua Kategori';
+  const hariQuery = searchParams.get('hari') || 'Semua Hari';
+  const sisaQuery = searchParams.get('sisa') || '';
 
-  const ekskulTerfilter = semuaEkskul.filter((e) => {
-    const matchKategori = selectedKategori
-      ? e.kategori === selectedKategori
-      : true;
-    const matchHari = selectedHari ? e.hari === selectedHari : true;
-    return matchKategori && matchHari;
+  // 2. State untuk form dropdown
+  const [kategori, setKategori] = useState<string>(kategoriQuery);
+  const [hari, setHari] = useState<string>(hariQuery);
+  const [sisa, setSisa] = useState<string>(sisaQuery);
+
+  // Data contoh ekstrakurikuler
+  const dataEkskul = [
+    { nama: 'Basket', kategori: 'Olahraga', hari: 'Senin', sisaSlot: 1, pembina: 'Pak Andi' },
+    { nama: 'Futsal', kategori: 'Olahraga', hari: 'Rabu', sisaSlot: 20, pembina: 'Pak Reza' },
+    { nama: 'Pramuka', kategori: 'Umum', hari: 'Jumat', sisaSlot: 3, pembina: 'Bu Siti' },
+  ];
+
+  // 3. LOGIKA FILTER
+  const filteredEkskul = dataEkskul.filter((item) => {
+    const matchKategori = kategoriQuery === 'Semua Kategori' || !kategoriQuery ? true : item.kategori.toLowerCase() === kategoriQuery.toLowerCase();
+    const matchHari = hariQuery === 'Semua Hari' || !hariQuery ? true : item.hari.toLowerCase() === hariQuery.toLowerCase();
+    
+    // Jika ada parameter ?sisa=1 di URL, saring ekskul yang sisa slotnya <= nilai tersebut
+    const matchSisa = sisaQuery ? item.sisaSlot <= parseInt(sisaQuery) : true;
+
+    return matchKategori && matchHari && matchSisa;
   });
 
+  // 4. Fungsi saat tombol "Cari & Saring" diklik (memperbarui URL)
+  const handleCariSaring = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    
+    if (kategori && kategori !== 'Semua Kategori') params.set('kategori', kategori);
+    if (hari && hari !== 'Semua Hari') params.set('hari', hari);
+    if (sisa) params.set('sisa', sisa);
+
+    router.push(`/ekskul?${params.toString()}`);
+  };
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-pink-100 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header Judul yang Cantik */}
-        <div className="text-center mb-8">
-          <span className="bg-pink-200 text-pink-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
-            🎀 EkskulKu Aktivitas Sekolah
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-pink-900 mt-2">
-            Daftar Ekstrakurikuler
-          </h1>
-          <p className="text-pink-600 mt-1 text-sm sm:text-base">
-            Temukan dan pilih kegiatan ekstrakurikuler favoritmu di sini! ✨
-          </p>
-        </div>
-
-        {/* Form Filter / Saringan */}
-        <form
-          method="GET"
-          className="bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-lg border border-pink-100 mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between"
+    <div className="p-6 max-w-5xl mx-auto">
+      {/* FORM FILTER ATAS */}
+      <form onSubmit={handleCariSaring} className="bg-white p-4 rounded-3xl shadow-sm mb-6 flex flex-wrap gap-4 items-center">
+        {/* Dropdown Kategori */}
+        <select 
+          value={kategori} 
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setKategori(e.target.value)}
+          className="border p-2 rounded-xl flex-1"
         >
-          <div className="w-full sm:w-auto flex-1">
-            <label className="block text-xs font-bold text-pink-700 uppercase mb-1">
-              Kategori
-            </label>
-            <select
-              name="kategori"
-              defaultValue={selectedKategori}
-              className="w-full bg-pink-50/50 border border-pink-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-400"
-            >
-              <option value="">Semua Kategori</option>
-              {DAFTAR_KATEGORI.map((kat) => (
-                <option key={kat} value={kat}>
-                  {kat}
-                </option>
-              ))}
-            </select>
-          </div>
+          <option>Semua Kategori</option>
+          <option>Olahraga</option>
+          <option>Umum</option>
+        </select>
 
-          <div className="w-full sm:w-auto flex-1">
-            <label className="block text-xs font-bold text-pink-700 uppercase mb-1">
-              Hari
-            </label>
-            <select
-              name="hari"
-              defaultValue={selectedHari}
-              className="w-full bg-pink-50/50 border border-pink-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-400"
-            >
-              <option value="">Semua Hari</option>
-              {DAFTAR_HARI.map((hari) => (
-                <option key={hari} value={hari}>
-                  {hari}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Dropdown Hari */}
+        <select 
+          value={hari} 
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setHari(e.target.value)}
+          className="border p-2 rounded-xl flex-1"
+        >
+          <option>Semua Hari</option>
+          <option>Senin</option>
+          <option>Rabu</option>
+          <option>Jumat</option>
+        </select>
 
-          <div className="w-full sm:w-auto self-end">
-            <button
-              type="submit"
-              className="w-full sm:w-auto bg-pink-500 hover:bg-pink-600 text-white font-medium px-6 py-2.5 rounded-xl shadow-md transition-all duration-200 hover:shadow-pink-200"
-            >
-              Cari & Saring 🔍
-            </button>
-          </div>
-        </form>
+        {/* Input Sisa Slot */}
+        <input 
+          type="number" 
+          placeholder="Maks. Sisa Slot (cth: 1)" 
+          value={sisa}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSisa(e.target.value)}
+          className="border p-2 rounded-xl"
+        />
 
-        {/* Info Jumlah Ditemukan */}
-        <div className="mb-4 px-2">
-          <p className="text-sm font-medium text-pink-800 italic">
-            🌸 Ditemukan{" "}
-            <span className="font-bold text-pink-900">
-              {ekskulTerfilter.length}
-            </span>{" "}
-            ekstrakurikuler
-          </p>
-        </div>
+        {/* Tombol Cari & Saring Pink */}
+        <button 
+          type="submit" 
+          className="bg-pink-500 text-white px-6 py-2 rounded-xl font-medium hover:bg-pink-600 transition"
+        >
+          Cari & Saring 🔍
+        </button>
+      </form>
 
-        {/* Daftar Kartu Ekskul */}
-        {ekskulTerfilter.length === 0 ? (
-          <div className="text-center py-16 bg-white/60 rounded-3xl border border-pink-100 shadow-sm">
-            <p className="text-pink-400 text-lg">
-              🥺 Tidak ada ekskul yang cocok.
-            </p>
-          </div>
+      {/* HASIL KARTU EKSKUL */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {filteredEkskul.length > 0 ? (
+          filteredEkskul.map((item, index) => (
+            <div key={index} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+              <span className="text-xs bg-pink-100 text-pink-600 px-3 py-1 rounded-full font-semibold">
+                {item.kategori}
+              </span>
+              <h3 className="text-xl font-bold mt-2">{item.nama}</h3>
+              <p className="text-sm text-gray-500 mt-1">📅 {item.hari} • Pembina: {item.pembina}</p>
+              <div className="mt-4 inline-block bg-emerald-100 text-emerald-700 text-xs px-3 py-1 rounded-full font-medium">
+                Sisa {item.sisaSlot} slot
+              </div>
+            </div>
+          ))
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {ekskulTerfilter.map((item) => {
-              const jumlahPendaftar = pendaftar.filter(
-                (p) => p.ekskulId === item.id,
-              ).length;
-              const sisaTempat = item.kuota - jumlahPendaftar;
-              const isPenuh = sisaTempat <= 0;
-
-              return (
-                <div
-                  key={item.id}
-                  className="bg-white/90 backdrop-blur-sm border border-pink-100 rounded-3xl p-6 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
-                >
-                  <div>
-                    <div className="flex justify-between items-start mb-3">
-                      <span className="text-xs font-bold bg-pink-100 text-pink-700 px-3 py-1 rounded-full">
-                        {item.kategori}
-                      </span>
-                      {isPenuh ? (
-                        <span className="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full animate-pulse">
-                          Penuh ❌
-                        </span>
-                      ) : (
-                        <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">
-                          Sisa {sisaTempat} dari {item.kuota} 🩷
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 className="text-xl font-bold text-gray-800 group-hover:text-pink-600 transition-colors">
-                      {item.nama}
-                    </h3>
-
-                    <div className="mt-3 space-y-1 text-sm text-gray-600">
-                      <p>
-                        📅 <span className="font-medium">{item.hari}</span> •
-                        Sesi {item.sesi} ({JAM_SESI[item.sesi] || "-"})
-                      </p>
-                      <p>
-                        👨‍🏫 Pembina:{" "}
-                        <span className="font-medium text-gray-700">
-                          {item.pembina}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-pink-50 flex items-center justify-between">
-                    <span className="text-xs font-medium text-pink-400">
-                      EkskulKu ✨
-                    </span>
-                    <Link
-                      href={`/ekskul/${item.id}`}
-                      className="inline-flex items-center gap-1 bg-pink-50 hover:bg-pink-500 text-pink-600 hover:text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all duration-200"
-                    >
-                      Lihat Detail &rarr;
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <p className="text-gray-500 col-span-2 text-center py-8">Tidak ada ekstrakurikuler yang sesuai dengan filter.</p>
         )}
       </div>
-    </main>
+    </div>
   );
 }
